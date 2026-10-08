@@ -1,26 +1,38 @@
 [
   {
-    "id": 1,
+    "digit": "1",
+    "id": "chennai",
     "name": "Chennai",
+    "name_ta": "சென்னை",
     "lat": 13.0827,
-    "lon": 80.2707
+    "lon": 80.2707,
+    "pincode": "600001"
   },
   {
-    "id": 2,
+    "digit": "2",
+    "id": "coimbatore",
     "name": "Coimbatore",
+    "name_ta": "கோயம்புத்தூர்",
     "lat": 11.0168,
-    "lon": 76.9558
+    "lon": 76.9558,
+    "pincode": "641001"
   },
   {
-    "id": 3,
+    "digit": "3",
+    "id": "madurai",
     "name": "Madurai",
+    "name_ta": "மதுரை",
     "lat": 9.9252,
-    "lon": 78.1233
+    "lon": 78.1198,
+    "pincode": "625001"
   },
   {
-    "id": 4,
+    "digit": "4",
+    "id": "tiruchirappalli",
     "name": "Tiruchirappalli",
+    "name_ta": "திருச்சிராப்பள்ளி",
     "lat": 10.7905,
-    "lon": 78.7047
+    "lon": 78.7047,
+    "pincode": "620001"
   }
 ]

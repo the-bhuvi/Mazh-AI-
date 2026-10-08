@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "message": "Will it rain heavily in Chennai this evening?",
+    "expected_intent": "CHECK_RAINFALL_RISK",
+    "expected_location": "Chennai",
+    "expected_language": "en"
+  },
+  {
+    "id": 2,
+    "message": "Can I dry my clothes outside right now in Madurai?",
+    "expected_intent": "CLOTHES_DRYING",
+    "expected_location": "Madurai",
+    "expected_language": "en"
+  },
+  {
+    "id": 3,
+    "message": "Coimbatore la inaikku mazhai varuma?",
+    "expected_intent": "CHECK_RAINFALL_RISK",
+    "expected_location": "Coimbatore",
+    "expected_language": "ta"
+  },
+  {
+    "id": 4,
+    "message": "What is the impact of El Niño on Tamil Nadu monsoon?",
+    "expected_intent": "EL_NINO_INFO",
+    "expected_location": null,
+    "expected_language": "en"
+  },
+  {
+    "id": 5,
+    "message": "Should I irrigate my paddy crops today in Trichy 620001?",
+    "expected_intent": "FARMING_ADVICE",
+    "expected_location": "620001",
+    "expected_language": "en"
+  },
+  {
+    "id": 6,
+    "message": "Hi, how does this weather chatbot work?",
+    "expected_intent": "GENERAL_HELP",
+    "expected_location": null,
+    "expected_language": "en"
+  }
+]
