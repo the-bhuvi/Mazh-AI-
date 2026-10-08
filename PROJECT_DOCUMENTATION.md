@@ -344,11 +344,21 @@ backend, or use mock mode for a backend-free UI demo.
 ### Render and Vercel
 
 `render.yaml` deploys `backend/` as the `mazh-ai-api` Python web service in
-Singapore. It runs `pip install -r requirements.txt` and starts Uvicorn on
-Render's `$PORT`, with `/health` as the health check.
+Singapore. It pins the Render runtime to Python `3.11.11`, runs
+`pip install -r requirements.txt`, and starts Uvicorn on Render's `$PORT`,
+with `/health` as the health check.
 
-The frontend is Vercel-ready through `frontend/vercel.json`. Set
-`VITE_API_URL` to the deployed Render origin and `VITE_USE_MOCK=false`.
+The frontend is Vercel-ready through `frontend/vercel.json`. For the current
+deployment, set these Vercel environment variables:
+
+```text
+VITE_API_URL=https://mazh-ai.onrender.com
+VITE_USE_MOCK=false
+```
+
+In Render, set `CORS_ORIGINS=https://mazh-ai.vercel.app` (append local
+development origins only when needed). Redeploy both services after changing
+their environment variables.
 Configure the Twilio inbound webhook as:
 
 ```text

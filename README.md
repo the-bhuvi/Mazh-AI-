@@ -21,9 +21,12 @@ secrets must be entered in Render's dashboard.
 | Name | What it is | Where to get it |
 |---|---|---|
 | `ENV` | Runtime mode; use `production` | Set manually |
+| `PYTHON_VERSION` | Render Python runtime | `3.11.11` |
 | `PORT` | Render-provided HTTP port | Set to `$PORT` or let Render provide it |
 | `HOST` | Bind address | Set to `0.0.0.0` |
 | `CORS_ORIGINS` | Comma-separated frontend origins | `https://mazh-ai.vercel.app`, plus local URLs if needed |
+| `OPEN_METEO_FORECAST_URL` | Open-Meteo forecast endpoint | `https://api.open-meteo.com/v1/forecast` |
+| `OPEN_METEO_ARCHIVE_URL` | Open-Meteo archive endpoint | `https://archive-api.open-meteo.com/v1/archive` |
 | `DATABASE_URL` | SQLite cache path/URL | Use `sqlite:///./data/cache.db`; cache is ephemeral on Render |
 | `ML_ENABLED` | Enable the checked-in model | `true` |
 | `RAIN_THRESHOLD_MM` | Training/target threshold in mm | `10` unless deliberately evaluating another target |
@@ -42,7 +45,8 @@ secrets must be entered in Render's dashboard.
 | `VOICE_AUDIO_PUBLIC_URL` | Public URL for cached MP3 files | `https://<service>.onrender.com/voice-audio` |
 
 The weather endpoints use Open-Meteo, so no weather-provider API key is
-required. Copy [`.env.example`](.env.example) for backend configuration and
+required. These endpoint variables belong in the Render backend environment;
+the frontend only needs `VITE_API_URL` and `VITE_USE_MOCK` in Vercel. Copy [`.env.example`](.env.example) for backend configuration and
 [`frontend/.env.example`](frontend/.env.example) for the frontend's API URL.
 
 `DATABASE_URL` and generated audio/cache files use Render's ephemeral

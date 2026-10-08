@@ -10,10 +10,14 @@ services:
     healthCheckPath: /health
     autoDeploy: true
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
       - key: ENV
       - key: PORT
       - key: HOST
       - key: CORS_ORIGINS
+      - key: OPEN_METEO_FORECAST_URL
+      - key: OPEN_METEO_ARCHIVE_URL
       - key: DATABASE_URL
       - key: ML_ENABLED
       - key: RAIN_THRESHOLD_MM

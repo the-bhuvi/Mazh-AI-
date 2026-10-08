@@ -86,7 +86,11 @@ async def refresh_preset_cities(build_insight_fn):
                 lon = float(city["lon"])
                 name = city["name"]
                 logger.info(f"Background refreshing insight for {name} ({lat}, {lon})...")
-                insight = await build_insight_fn(lat=lat, lon=lon, place_name=name)
+                insight = await build_insight_fn(
+                    lat=lat,
+                    lon=lon,
+                    place_name_override=name,
+                )
                 set_cached_insight(lat, lon, insight)
             except Exception as e:
                 logger.error(f"Failed to refresh preset city {city.get('name')}: {e}")

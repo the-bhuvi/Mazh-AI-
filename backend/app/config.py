@@ -20,6 +20,16 @@ PORT = int(os.getenv("PORT", "8000"))
 HOST = os.getenv("HOST", "0.0.0.0")
 ENV = os.getenv("ENV", "development")
 
+# Open-Meteo endpoints
+OPEN_METEO_FORECAST_URL = os.getenv(
+    "OPEN_METEO_FORECAST_URL",
+    "https://api.open-meteo.com/v1/forecast",
+)
+OPEN_METEO_ARCHIVE_URL = os.getenv(
+    "OPEN_METEO_ARCHIVE_URL",
+    "https://archive-api.open-meteo.com/v1/archive",
+)
+
 # LLM Configuration
 LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
 LLM_MODEL = os.getenv("LLM_MODEL", "gemini-2.5-flash")

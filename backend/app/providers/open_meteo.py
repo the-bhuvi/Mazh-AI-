@@ -3,6 +3,7 @@ import httpx
 import asyncio
 from typing import Dict, Any
 from app.providers.base import BaseWeatherProvider
+from app.config import OPEN_METEO_FORECAST_URL
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +41,7 @@ class OpenMeteoProvider(BaseWeatherProvider):
     def __init__(self, timeout: float = 2.0, max_retries: int = 1):
         self.timeout = timeout
         self.max_retries = max_retries
-        self.url = "https://api.open-meteo.com/v1/forecast"
+        self.url = OPEN_METEO_FORECAST_URL
 
     async def get_weather(self, lat: float, lon: float) -> Dict[str, Any]:
         params = {

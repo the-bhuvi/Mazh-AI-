@@ -12,14 +12,13 @@ import httpx
 import pandas as pd
 
 try:
-    from app.config import CONFIG_DIR, ML_DATA_DIR
+    from app.config import CONFIG_DIR, ML_DATA_DIR, OPEN_METEO_ARCHIVE_URL
     from ml.features import City
 except ModuleNotFoundError:
-    from backend.app.config import CONFIG_DIR, ML_DATA_DIR
+    from backend.app.config import CONFIG_DIR, ML_DATA_DIR, OPEN_METEO_ARCHIVE_URL
     from backend.ml.features import City
 
 logger = logging.getLogger(__name__)
-ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"
 HISTORICAL_FORECAST_URL = "https://historical-forecast-api.open-meteo.com/v1/forecast"
 NOAA_ONI_URL = "https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt"
 
@@ -55,13 +54,13 @@ def fetch_city(
         ]),
         "timezone": "UTC",
     }
-    url = HISTORICAL_FORECAST_URL if historical_forecast else ARCHIVE_URL
+    url = HISTORICAL_FORECAST_URL if historical_forecast else OPEN_METEO_ARCHIVE_URL
     try:
         payload = _request(url, params)
     except Exception:
         if historical_forecast:
             logger.warning("Historical Forecast API failed for %s; retrying Archive API", city.name)
-            payload = _request(ARCHIVE_URL, params)
+            payload = _request(OPEN_METEO_ARCHIVE_URL, params)
         else:
             raise
     hourly = payload.get("hourly", {})
