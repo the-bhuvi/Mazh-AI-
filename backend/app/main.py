@@ -52,11 +52,9 @@ async def lifespan(app: FastAPI):
     logger.info("Initializing Mazh AI Backend Application...")
     # Optional model, database, and audio warming must not delay port binding.
     local_state_task = asyncio.create_task(warm_local_state())
-    warm_task = asyncio.create_task(refresh_preset_cities(get_or_build_insight))
     refresher_task = asyncio.create_task(start_cache_scheduler(get_or_build_insight, interval_seconds=900))
     yield
     local_state_task.cancel()
-    warm_task.cancel()
     refresher_task.cancel()
 
 app = FastAPI(

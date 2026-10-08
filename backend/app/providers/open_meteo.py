@@ -62,9 +62,40 @@ class OpenMeteoProvider(BaseWeatherProvider):
                     response.raise_for_status()
                     data = response.json()
                     return self._normalize_data(data, lat, lon)
-            except Exception as e:
-                logger.warning(f"OpenMeteo fetch attempt {attempt + 1} failed for lat={lat}, lon={lon}: {e}")
+            except httpx.HTTPStatusError as e:
                 last_error = e
+                if e.response.status_code == 429:
+                    retry_after = e.response.headers.get("Retry-After")
+                    try:
+                        delay = max(float(retry_after), 1.0) if retry_after else 5.0
+                    except ValueError:
+                        delay = 5.0
+                    logger.warning(
+                        "OpenMeteo rate limit reached for lat=%s, lon=%s (attempt %s/%s)",
+                        lat,
+                        lon,
+                        attempt + 1,
+                        1 + self.max_retries,
+                    )
+                    if attempt < self.max_retries:
+                        await asyncio.sleep(min(delay, 60.0))
+                    continue
+                logger.warning(
+                    "OpenMeteo fetch attempt %s failed for lat=%s, lon=%s: %s",
+                    attempt + 1,
+                    lat,
+                    lon,
+                    e,
+                )
+            except Exception as e:
+                last_error = e
+                logger.warning(
+                    "OpenMeteo fetch attempt %s failed for lat=%s, lon=%s: %s",
+                    attempt + 1,
+                    lat,
+                    lon,
+                    e,
+                )
                 if attempt < self.max_retries:
                     await asyncio.sleep(0.2)
 
