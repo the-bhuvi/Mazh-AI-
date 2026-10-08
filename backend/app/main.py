@@ -35,18 +35,26 @@ logger = logging.getLogger("mazh_backend")
 
 from contextlib import asynccontextmanager
 
+async def warm_local_state():
+    """Warm optional local resources without delaying the HTTP listener."""
+    try:
+        await asyncio.to_thread(preload_ml_model)
+        await asyncio.to_thread(load_pincodes)
+        warmed_audio = await asyncio.to_thread(prewarm_fixed_audio)
+        logger.info("Pre-warmed %d fixed voice audio files", warmed_audio)
+    except Exception:
+        logger.exception("Optional local state warm-up failed")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Initializing Mazh AI Backend Application...")
-    # Warm critical local state before accepting traffic. Network-backed
-    # weather/audio warming remains in a task so startup cannot deadlock.
-    preload_ml_model()
-    load_pincodes()
-    warmed_audio = await asyncio.to_thread(prewarm_fixed_audio)
-    logger.info("Pre-warmed %d fixed voice audio files", warmed_audio)
+    # Optional model, database, and audio warming must not delay port binding.
+    local_state_task = asyncio.create_task(warm_local_state())
     warm_task = asyncio.create_task(refresh_preset_cities(get_or_build_insight))
     refresher_task = asyncio.create_task(start_cache_scheduler(get_or_build_insight, interval_seconds=900))
     yield
+    local_state_task.cancel()
     warm_task.cancel()
     refresher_task.cancel()
 
