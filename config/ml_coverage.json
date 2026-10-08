@@ -1,0 +1,11 @@
+{
+  "region_name": "Tamil Nadu & Puducherry",
+  "bounding_box": {
+    "min_lat": 8.0,
+    "max_lat": 13.8,
+    "min_lon": 76.0,
+    "max_lon": 80.6
+  },
+  "trusted_states": ["Tamil Nadu", "Puducherry"],
+  "fallback_message": "Location outside high-resolution Tamil Nadu ML coverage. Falling back to deterministic global forecast risk model."
+}
