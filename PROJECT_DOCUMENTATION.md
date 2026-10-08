@@ -420,8 +420,10 @@ production requests must include a valid Twilio signature.
   checked-in artifact contract.
 - Open-Meteo, Nominatim, NOAA, Twilio, and custom TTS are external
   dependencies with their own availability and latency.
-- CORS defaults include `*` for local convenience; production should use the
-  exact deployed frontend origin.
+- CORS should use explicit origins because the API allows credentials. The
+  example configuration includes `https://mazh-ai.vercel.app` and local
+  development origins.
+- Weather data comes from Open-Meteo, which does not require an API key.
 - The checked-in `backend/models/rainfall_model.joblib` must remain compatible
   with the version-2 feature contract when retraining.
 - Climate context should be presented as seasonal context, not as a direct

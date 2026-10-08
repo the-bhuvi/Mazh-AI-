@@ -23,7 +23,7 @@ secrets must be entered in Render's dashboard.
 | `ENV` | Runtime mode; use `production` | Set manually |
 | `PORT` | Render-provided HTTP port | Set to `$PORT` or let Render provide it |
 | `HOST` | Bind address | Set to `0.0.0.0` |
-| `CORS_ORIGINS` | Comma-separated frontend origins | Your Vercel URL, plus local URLs if needed |
+| `CORS_ORIGINS` | Comma-separated frontend origins | `https://mazh-ai.vercel.app`, plus local URLs if needed |
 | `DATABASE_URL` | SQLite cache path/URL | Use `sqlite:///./data/cache.db`; cache is ephemeral on Render |
 | `ML_ENABLED` | Enable the checked-in model | `true` |
 | `RAIN_THRESHOLD_MM` | Training/target threshold in mm | `10` unless deliberately evaluating another target |
@@ -40,6 +40,10 @@ secrets must be entered in Render's dashboard.
 | `TTS_API_KEY` | Optional TTS secret | Your TTS provider dashboard |
 | `TTS_VOICE_EN` / `TTS_VOICE_TA` | Optional voice identifiers | Your TTS provider documentation |
 | `VOICE_AUDIO_PUBLIC_URL` | Public URL for cached MP3 files | `https://<service>.onrender.com/voice-audio` |
+
+The weather endpoints use Open-Meteo, so no weather-provider API key is
+required. Copy [`.env.example`](.env.example) for backend configuration and
+[`frontend/.env.example`](frontend/.env.example) for the frontend's API URL.
 
 `DATABASE_URL` and generated audio/cache files use Render's ephemeral
 filesystem. The application rebuilds PIN data at startup, loads the model

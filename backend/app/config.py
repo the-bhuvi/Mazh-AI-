@@ -44,7 +44,10 @@ PHONE_API_KEY = os.getenv("PHONE_API_KEY", "")
 # CORS origins
 CORS_ORIGINS = [
     origin.strip()
-    for origin in os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000,*").split(",")
+    for origin in os.getenv(
+        "CORS_ORIGINS",
+        "https://mazh-ai.vercel.app,http://localhost:5173,http://localhost:3000",
+    ).split(",")
     if origin.strip()
 ]
 
