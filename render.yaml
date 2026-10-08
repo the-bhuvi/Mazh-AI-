@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: mazh-ai-api
+    runtime: python
+    rootDir: backend
+    region: singapore
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: ENV
+      - key: PORT
+      - key: HOST
+      - key: CORS_ORIGINS
+      - key: DATABASE_URL
+      - key: ML_ENABLED
+      - key: RAIN_THRESHOLD_MM
+      - key: LLM_BASE_URL
+      - key: LLM_MODEL
+      - key: LLM_API_KEY
+      - key: GEMINI_API_KEY
+      - key: TWILIO_ACCOUNT_SID
+      - key: TWILIO_AUTH_TOKEN
+      - key: TWILIO_PHONE_NUMBER
+      - key: VOICE_STATE_SECRET
+      - key: VOICE_BASE_URL
+      - key: TTS_PROVIDER
+      - key: TTS_API_URL
+      - key: TTS_API_KEY
+      - key: TTS_VOICE_EN
+      - key: TTS_VOICE_TA
+      - key: VOICE_AUDIO_PUBLIC_URL

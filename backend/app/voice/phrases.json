@@ -1,0 +1,38 @@
+{
+  "en": {
+    "welcome": "Welcome to Mazh AI rainfall intelligence. Press 1 for English. Press 2 for Tamil.",
+    "pin_prompt": "Enter your 6 digit PIN code followed by hash.",
+    "pin_invalid": "That PIN could not be found. Please enter it again.",
+    "pin_readback": "You entered {pin}. Press 1 to continue, or press 2 to enter it again.",
+    "city_prompt": "Choose a city. Press 1 for Chennai, 2 for Coimbatore, 3 for Madurai, or 4 for Tiruchirappalli.",
+    "menu": "Press 1 for rain risk in the next 6 hours. Press 2 for today's summary. Press 3 for tomorrow. Press 4 for alerts and risks. Press 5 for SMS. Press 9 to change PIN. Press 0 to repeat.",
+    "rain": "{location}: rainfall risk is {level}. {window} {recommendation}",
+    "today": "{location}: today it will be around {temperature}. {summary}",
+    "tomorrow": "{location}: tomorrow's rain chance is {rain_prob} percent, with around {rain_mm} millimetres expected. {recommendation}",
+    "alerts": "{location}: {alerts} {recommendation}",
+    "sms_prompt": "Press 1 to receive it on this number. Press 2 to enter another 10 digit number.",
+    "number_prompt": "Enter the 10 digit mobile number followed by hash.",
+    "sms_sent": "Your rainfall message has been sent.",
+    "sms_failed": "Sorry, we could not send the message. Please try again later.",
+    "goodbye": "We did not receive a key press. Goodbye.",
+    "invalid_menu": "That was not a valid option."
+  },
+  "ta": {
+    "welcome": "மழை தகவல் சேவைக்கு வரவேற்கிறோம். ஆங்கிலத்திற்கு 1 அழுத்தவும். தமிழுக்கு 2 அழுத்தவும்.",
+    "pin_prompt": "உங்கள் 6 இலக்க PIN குறியீட்டை உள்ளிட்டு ஹாஷ் அழுத்தவும்.",
+    "pin_invalid": "இந்த PIN கிடைக்கவில்லை. மீண்டும் உள்ளிடவும்.",
+    "pin_readback": "நீங்கள் உள்ளிட்டது {pin}. தொடர 1 அழுத்தவும், மீண்டும் உள்ளிட 2 அழுத்தவும்.",
+    "city_prompt": "ஒரு நகரத்தை தேர்வு செய்யவும். சென்னைக்கு 1, கோயம்புத்தூருக்கு 2, மதுரைக்கு 3, திருச்சிராப்பள்ளிக்கு 4 அழுத்தவும்.",
+    "menu": "அடுத்த 6 மணி நேர மழை அபாயத்திற்கு 1. இன்றைய சுருக்கத்திற்கு 2. நாளைக்கு 3. எச்சரிக்கைகளுக்கு 4. SMSக்கு 5. PIN மாற்ற 9. மீண்டும் கேட்க 0 அழுத்தவும்.",
+    "rain": "{location}: மழை அபாயம் {level}. {window} {recommendation}",
+    "today": "{location}: இன்று வெப்பநிலை {temperature}. {summary}",
+    "tomorrow": "{location}: நாளைய மழை வாய்ப்பு {rain_prob} விழுக்காடு, சுமார் {rain_mm} மில்லிமீட்டர். {recommendation}",
+    "alerts": "{location}: {alerts} {recommendation}",
+    "sms_prompt": "இந்த எண்ணுக்கு பெற 1 அழுத்தவும். வேறு 10 இலக்க எண்ணுக்கு 2 அழுத்தவும்.",
+    "number_prompt": "10 இலக்க கைபேசி எண்ணை உள்ளிட்டு ஹாஷ் அழுத்தவும்.",
+    "sms_sent": "உங்கள் மழை தகவல் SMS அனுப்பப்பட்டது.",
+    "sms_failed": "மன்னிக்கவும், SMS அனுப்ப முடியவில்லை. பின்னர் முயற்சிக்கவும்.",
+    "goodbye": "எந்த விசையும் பெறப்படவில்லை. நன்றி.",
+    "invalid_menu": "தவறான தேர்வு."
+  }
+}

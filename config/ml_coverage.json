@@ -7,5 +7,15 @@
     "max_lon": 80.6
   },
   "trusted_states": ["Tamil Nadu", "Puducherry"],
-  "fallback_message": "Location outside high-resolution Tamil Nadu ML coverage. Falling back to deterministic global forecast risk model."
+  "fallback_message": "Location outside high-resolution Tamil Nadu ML coverage. Falling back to deterministic global forecast risk model.",
+  "cities": [
+    {"id": "chennai", "name": "Chennai", "lat": 13.0827, "lon": 80.2707, "elevation_m": 6},
+    {"id": "coimbatore", "name": "Coimbatore", "lat": 11.0168, "lon": 76.9558, "elevation_m": 411},
+    {"id": "madurai", "name": "Madurai", "lat": 9.9252, "lon": 78.1198, "elevation_m": 101},
+    {"id": "tiruchirappalli", "name": "Tiruchirappalli", "lat": 10.7905, "lon": 78.7047, "elevation_m": 78},
+    {"id": "salem", "name": "Salem", "lat": 11.6643, "lon": 78.1460, "elevation_m": 278},
+    {"id": "thoothukudi", "name": "Thoothukudi", "lat": 8.7642, "lon": 78.1348, "elevation_m": 2},
+    {"id": "ooty", "name": "Udhagamandalam", "lat": 11.4102, "lon": 76.6950, "elevation_m": 2240},
+    {"id": "cuddalore", "name": "Cuddalore", "lat": 11.7480, "lon": 79.7714, "elevation_m": 6}
+  ]
 }

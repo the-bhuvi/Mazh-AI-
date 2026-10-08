@@ -77,10 +77,19 @@ def build_insight(
 
     # ML rainfall prediction attempt
     ml_score, ml_level, ml_conf = 0.0, "low", 0.85
+    ml_reasons: List[str] = []
     if ml_eligible:
         try:
             nino_anom = climate_info.get("nino34_anom") or 0.0
-            ml_score, ml_level, ml_conf = predict_ml_risk(hourly, current, enso_anom=nino_anom)
+            prediction = predict_ml_risk(
+                hourly, current, lat=lat, lon=lon,
+                enso_anom=nino_anom,
+                enso_state=climate_info.get("enso_state", "unknown"),
+            )
+            ml_score = float(prediction["score"])
+            ml_level = str(prediction["level"])
+            ml_reasons = list(prediction.get("reasons", []))
+            ml_conf = max(0.5, min(0.99, 1.0 - abs(ml_score - 0.5)))
             ml_used = True
             fallback_used = False
         except Exception as e:
@@ -120,7 +129,9 @@ def build_insight(
             rain_score, rain_level = 0.15, "low"
         rain_conf = 0.90
 
-    rain_reasons = []
+    rain_reasons = list(ml_reasons)
+    if not rain_reasons:
+        rain_reasons = []
     if rain_windows:
         w = rain_windows[0]
         start_fmt = format_hour(w["start"])

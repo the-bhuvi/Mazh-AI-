@@ -3,11 +3,12 @@ import logging
 import asyncio
 from datetime import datetime, timezone
 from typing import Optional, Dict, Any
-from fastapi import FastAPI, Query, HTTPException, Request, Response, Form
+from fastapi import FastAPI, Query, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
+from fastapi.staticfiles import StaticFiles
 
-from app.config import CORS_ORIGINS, PORT, HOST
+from app.config import CORS_ORIGINS, PORT, HOST, VOICE_AUDIO_DIR
 from app.schemas import (
     InsightSchema, PredictRequest, PredictResponse,
     ChatRequest, ChatResponse, SmsRequest, SmsResponse
@@ -15,13 +16,14 @@ from app.schemas import (
 from app.providers.open_meteo import OpenMeteoProvider
 from app.location import get_lat_lon_from_place, get_lat_lon_from_pin, reverse_geocode
 from app.climate_service import get_climate_state
-from app.cache import get_cached_insight, set_cached_insight, start_cache_scheduler
+from app.cache import get_cached_insight, set_cached_insight, start_cache_scheduler, refresh_preset_cities
 from app.engine.insight import build_insight
 from app.sms.twilio_adapter import SMSProvider, validate_phone_number
 from app.llm.client import LLMClient
-from app.ivr.twiml_handler import (
-    load_cities_menu, build_twiml_response, build_twiml_say_and_hangup, generate_voice_script
-)
+from app.voice.routes import voice_router
+from app.ml_engine import preload_ml_model
+from app.voice.audio import prewarm_fixed_audio
+from scripts.load_pincodes import load_pincodes
 
 # Structured Logging Configuration
 logging.basicConfig(
@@ -35,9 +37,16 @@ from contextlib import asynccontextmanager
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Initializing Mazh AI Backend Application...")
-    # Start background cache refresher for preset cities
+    # Warm critical local state before accepting traffic. Network-backed
+    # weather/audio warming remains in a task so startup cannot deadlock.
+    preload_ml_model()
+    load_pincodes()
+    warmed_audio = await asyncio.to_thread(prewarm_fixed_audio)
+    logger.info("Pre-warmed %d fixed voice audio files", warmed_audio)
+    warm_task = asyncio.create_task(refresh_preset_cities(get_or_build_insight))
     refresher_task = asyncio.create_task(start_cache_scheduler(get_or_build_insight, interval_seconds=900))
     yield
+    warm_task.cancel()
     refresher_task.cancel()
 
 app = FastAPI(
@@ -46,6 +55,7 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+app.mount("/voice-audio", StaticFiles(directory=str(VOICE_AUDIO_DIR)), name="voice-audio")
 
 # CORS Middleware
 app.add_middleware(
@@ -55,6 +65,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(voice_router)
 
 # Services
 weather_provider = OpenMeteoProvider(timeout=2.0, max_retries=1)
@@ -69,6 +80,7 @@ RATE_LIMIT_MAX = 60 # max requests per minute per IP
 async def rate_limit_middleware(request: Request, call_next):
     client_ip = request.client.host if request.client else "127.0.0.1"
     now = time.time()
+    request_started = time.perf_counter()
     
     # Clean old timestamps
     if client_ip not in REQUEST_HISTORY:
@@ -84,6 +96,13 @@ async def rate_limit_middleware(request: Request, call_next):
     
     REQUEST_HISTORY[client_ip].append(now)
     response = await call_next(request)
+    if request.url.path.startswith("/voice/"):
+        logger.info(
+            "voice_request path=%s status=%s latency_ms=%.1f",
+            request.url.path,
+            response.status_code,
+            (time.perf_counter() - request_started) * 1000,
+        )
     return response
 
 # Global Exception Handler
@@ -231,53 +250,3 @@ async def send_sms_endpoint(req: SmsRequest):
     
     res = await sms_provider.send_sms(to_phone=req.phone, message_text=sms_text)
     return SmsResponse(status=res["status"], detail=res.get("detail"))
-
-# Twilio Keypad IVR Webhooks
-@app.post("/voice/welcome")
-async def voice_welcome():
-    prompt = "Welcome to Mazh AI Rainfall Intelligence. Press 1 for English. தமிழ் தகவலுக்கு 2 ஐ அழுத்தவும்."
-    twiml = build_twiml_response(prompt_text=prompt, gather_action="/voice/language", num_digits=1)
-    return Response(content=twiml, media_type="application/xml")
-
-@app.post("/voice/language")
-async def voice_language(Digits: Optional[str] = Form(None)):
-    lang = "ta" if Digits == "2" else "en"
-    cities = load_cities_menu()
-    
-    if lang == "ta":
-        options = " ".join([f"{c['name_ta']} தகவலுக்கு {c['digit']} அழுத்தவும்." for c in cities])
-        prompt = f"நகரத்தை தேர்ந்தெடுக்கவும்: {options} PIN குறியீடு உள்ளிட 5 ஐ அழுத்தவும்."
-    else:
-        options = " ".join([f"Press {c['digit']} for {c['name']}." for c in cities])
-        prompt = f"Please choose your city: {options} Or Press 5 to enter a 6-digit Pincode."
-
-    twiml = build_twiml_response(prompt_text=prompt, gather_action=f"/voice/menu?lang={lang}", num_digits=1)
-    return Response(content=twiml, media_type="application/xml")
-
-@app.post("/voice/menu")
-async def voice_menu(Digits: Optional[str] = Form(None), lang: str = Query("en")):
-    cities = load_cities_menu()
-    
-    if Digits == "5":
-        prompt = "தயவுசெய்து உங்கள் 6 இலக்க PIN குறியீட்டை உள்ளிடவும்." if lang == "ta" else "Please enter your 6-digit PIN code followed by hash."
-        twiml = build_twiml_response(prompt_text=prompt, gather_action=f"/voice/pincode-submit?lang={lang}", num_digits=6)
-        return Response(content=twiml, media_type="application/xml")
-    
-    matched_city = next((c for c in cities if c["digit"] == Digits), cities[0])
-    insight = await get_or_build_insight(lat=matched_city["lat"], lon=matched_city["lon"], place_name_override=matched_city["name"])
-    
-    script = generate_voice_script(insight, lang=lang)
-    twiml = build_twiml_say_and_hangup(script)
-    return Response(content=twiml, media_type="application/xml")
-
-@app.post("/voice/pincode-submit")
-async def voice_pincode_submit(Digits: Optional[str] = Form(None), lang: str = Query("en")):
-    pin = Digits or "600001"
-    try:
-        insight = await get_or_build_insight(pin=pin)
-    except Exception:
-        insight = await get_or_build_insight(place="Chennai")
-    
-    script = generate_voice_script(insight, lang=lang)
-    twiml = build_twiml_say_and_hangup(script)
-    return Response(content=twiml, media_type="application/xml")

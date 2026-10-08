@@ -1,0 +1,7 @@
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+backend/data/enso_cache.csv
+backend/ml/data/*.csv
+backend/ml/data/*.sqlite
+backend/ml/data/*.txt

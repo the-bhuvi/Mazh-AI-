@@ -40,7 +40,7 @@ async def get_lat_lon_from_pin(pin: str) -> Dict[str, Any]:
     Fallback to Nominatim if not present locally.
     """
     pin = pin.strip()
-    if not pin.isdigit() or len(pin) != 6:
+    if not pin.isdigit() or len(pin) != 6 or pin[0] == "0":
         raise ValueError(f"Invalid 6-digit Indian PIN code format: '{pin}'")
 
     conn = _get_db()
