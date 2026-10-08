@@ -13,6 +13,7 @@ from app.schemas import (
     ChatRequest, ChatResponse, SmsRequest, SmsResponse
 )
 from app.providers.open_meteo import OpenMeteoProvider
+from app.providers.historical_weather import HistoricalWeatherProvider
 from app.location import get_lat_lon_from_place, get_lat_lon_from_pin, reverse_geocode
 from app.climate_service import get_climate_state
 from app.cache import get_cached_insight, set_cached_insight, start_cache_scheduler
@@ -58,6 +59,7 @@ app.add_middleware(
 
 # Services
 weather_provider = OpenMeteoProvider(timeout=2.0, max_retries=1)
+historical_provider = HistoricalWeatherProvider(timeout=10.0, max_retries=1)
 sms_provider = SMSProvider()
 llm_client = LLMClient(timeout=3.0)
 
@@ -160,6 +162,63 @@ async def health():
         "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "version": "1.0.0"
     }
+
+
+@app.get("/weather/current")
+async def get_current_weather(
+    lat: float = Query(..., description="Latitude"),
+    lon: float = Query(..., description="Longitude"),
+):
+    """
+    Proxy to Open-Meteo Forecast API for current weather conditions.
+    Returns current, hourly (48 h) and daily (7-day) weather data.
+    Source: https://api.open-meteo.com/v1/forecast
+    """
+    try:
+        data = await weather_provider.get_weather(lat, lon)
+        return data
+    except Exception as e:
+        logger.error(f"Current weather fetch failed for lat={lat}, lon={lon}: {e}")
+        raise HTTPException(status_code=502, detail={"error": "Weather provider error", "detail": str(e)})
+
+
+@app.get("/weather/historical")
+async def get_historical_weather(
+    lat: float = Query(..., description="Latitude"),
+    lon: float = Query(..., description="Longitude"),
+    start_date: str = Query(..., description="Start date in YYYY-MM-DD format (max 3 months back)"),
+    end_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+):
+    """
+    Proxy to Open-Meteo Archive API for historical weather data.
+    Returns hourly and daily aggregated historical weather for the given date range.
+    Source: https://archive-api.open-meteo.com/v1/archive
+    """
+    # Validate date strings
+    try:
+        start = datetime.strptime(start_date, "%Y-%m-%d").date()
+        end = datetime.strptime(end_date, "%Y-%m-%d").date()
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "Invalid date format", "detail": "Use YYYY-MM-DD format for start_date and end_date."}
+        )
+    if start > end:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "Invalid date range", "detail": "start_date must be before or equal to end_date."}
+        )
+    if (end - start).days > 365:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "Date range too large", "detail": "Maximum allowed range is 365 days."}
+        )
+    try:
+        data = await historical_provider.get_historical_weather(lat, lon, start_date, end_date)
+        return data
+    except Exception as e:
+        logger.error(f"Historical weather fetch failed for lat={lat}, lon={lon}: {e}")
+        raise HTTPException(status_code=502, detail={"error": "Archive provider error", "detail": str(e)})
 
 @app.get("/weather", response_model=InsightSchema)
 async def get_weather(
