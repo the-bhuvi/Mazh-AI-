@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Chennai",
+    "lat": 13.0827,
+    "lon": 80.2707
+  },
+  {
+    "id": 2,
+    "name": "Coimbatore",
+    "lat": 11.0168,
+    "lon": 76.9558
+  },
+  {
+    "id": 3,
+    "name": "Madurai",
+    "lat": 9.9252,
+    "lon": 78.1233
+  },
+  {
+    "id": 4,
+    "name": "Tiruchirappalli",
+    "lat": 10.7905,
+    "lon": 78.7047
+  }
+]

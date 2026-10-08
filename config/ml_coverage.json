@@ -1,0 +1,9 @@
+{
+  "trusted_region": "Tamil Nadu",
+  "bounding_box": {
+    "min_lat": 8.0,
+    "max_lat": 13.5,
+    "min_lon": 76.0,
+    "max_lon": 80.5
+  }
+}
