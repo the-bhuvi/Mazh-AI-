@@ -5,8 +5,8 @@ services:
     rootDir: backend
     region: singapore
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    buildCommand: python -m pip install --no-cache-dir -r requirements.txt && python -c "import multipart; print('python-multipart installed')"
+    startCommand: python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     autoDeploy: true
     envVars:
