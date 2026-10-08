@@ -23,6 +23,7 @@ from app.llm.client import LLMClient
 from app.voice.routes import voice_router
 from app.ml_engine import preload_ml_model
 from app.voice.audio import prewarm_fixed_audio
+from app.phone import phone_router
 from scripts.load_pincodes import load_pincodes
 
 # Structured Logging Configuration
@@ -66,6 +67,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(voice_router)
+app.include_router(phone_router)
 
 # Services
 weather_provider = OpenMeteoProvider(timeout=2.0, max_retries=1)

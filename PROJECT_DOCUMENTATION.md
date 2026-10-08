@@ -255,6 +255,15 @@ and is not shared between worker processes.
 
 ## 9. Voice and SMS behavior
 
+The preferred low-cost phone deployment is Asterisk. The checked-in
+`asterisk/extensions.conf` dialplan answers the call, collects a six-digit
+PIN, and invokes the authenticated `/api/phone/*` FastAPI endpoints through
+`asterisk/agi/mazh_weather.py`. Asterisk owns DTMF and call control; the
+backend owns PIN lookup, weather retrieval, ML inference, risk scoring, and
+voice-ready deterministic messages. The Asterisk setup requires a SIP trunk or
+GSM gateway; the Asterisk software itself does not provide a telephone number
+or free carrier minutes.
+
 The IVR is keypad-only; it does not use speech recognition or an LLM. TwiML
 prompts are fixed phrase templates filled with forecast output.
 

@@ -1,9 +1,11 @@
 # Mazh AI
 
 Mazh AI is a rainfall-risk intelligence service with a React dashboard, a
-FastAPI backend, a calibrated rainfall model, and a keypad-only Twilio IVR.
-The IVR never uses speech recognition or an LLM. It reads fixed phrase
-templates filled only with forecast/engine output.
+FastAPI backend, a calibrated rainfall model, and a keypad-only IVR. The
+reference phone deployment uses Asterisk; the legacy Twilio-compatible webhook
+flow remains available for compatibility. The IVR never uses speech recognition
+or an LLM. It reads fixed phrase templates filled only with forecast/engine
+output.
 
 For the complete architecture, API contract, ML pipeline, frontend flow,
 voice/SMS behavior, configuration reference, and testing guide, see
@@ -82,7 +84,25 @@ The benchmark reports local application latency for warmed DTMF menu
 requests. It does not measure carrier audio delivery or cold external API/TTS
 latency.
 
-## Twilio webhook URLs
+## Asterisk phone deployment
+
+The Asterisk dialplan and AGI bridge are in [asterisk/](asterisk/). Configure
+`PHONE_API_KEY` on FastAPI and the matching `MAZH_PHONE_API_KEY` in the
+Asterisk service environment. The AGI calls these authenticated endpoints:
+
+```text
+POST /api/phone/weather
+POST /api/phone/today
+POST /api/phone/tomorrow
+POST /api/phone/alerts
+POST /api/phone/sms
+```
+
+The caller enters a six-digit PIN followed by `#`, then uses the DTMF menu.
+See [asterisk/README.md](asterisk/README.md) for installation and recording
+requirements.
+
+## Legacy Twilio webhook URLs
 
 After deploying, replace `<RENDER_SERVICE_URL>` with the exact HTTPS origin
 shown by Render, for example `https://mazh-ai-api.onrender.com`.

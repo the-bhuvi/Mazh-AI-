@@ -39,6 +39,7 @@ TTS_VOICE_TA = os.getenv("TTS_VOICE_TA", "ta-IN")
 VOICE_AUDIO_DIR = BASE_DIR / "backend" / "voice_audio"
 VOICE_AUDIO_DIR.mkdir(parents=True, exist_ok=True)
 VOICE_AUDIO_PUBLIC_URL = os.getenv("VOICE_AUDIO_PUBLIC_URL", "")
+PHONE_API_KEY = os.getenv("PHONE_API_KEY", "")
 
 # CORS origins
 CORS_ORIGINS = [
