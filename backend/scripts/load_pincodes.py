@@ -76,6 +76,12 @@ def load_pincodes(custom_csv_or_json_path=None):
         VALUES (?, ?, ?, ?, ?, ?)
     """, SEED_PINCODES)
 
+    # Auto-load the bundled all-India dataset when present (Render deploys
+    # call load_pincodes() with no arguments at startup).
+    default_csv = DATA_DIR / "pincodes_india.csv"
+    if not custom_csv_or_json_path and default_csv.exists():
+        custom_csv_or_json_path = str(default_csv)
+
     # If an external JSON/CSV dataset path is provided, load it
     if custom_csv_or_json_path and Path(custom_csv_or_json_path).exists():
         path = Path(custom_csv_or_json_path)
@@ -97,6 +103,34 @@ def load_pincodes(custom_csv_or_json_path=None):
                     INSERT OR REPLACE INTO pincodes (pincode, place_name, district, state, latitude, longitude)
                     VALUES (?, ?, ?, ?, ?, ?)
                 """, rows)
+        elif path.suffix == ".csv":
+            # Columns: key,place_name,admin_name1,latitude,longitude,accuracy
+            # (sanand0/pincode dataset). key looks like "IN/110001".
+            import csv
+
+            with open(path, "r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                rows = []
+                for item in reader:
+                    pin = str(item.get("key", "")).split("/")[-1].strip()
+                    lat = str(item.get("latitude", "") or "").strip()
+                    lon = str(item.get("longitude", "") or "").strip()
+                    if not (pin.isdigit() and len(pin) == 6 and lat and lon):
+                        continue
+                    state = str(item.get("admin_name1", "") or "").strip()
+                    rows.append((
+                        pin,
+                        str(item.get("place_name", "") or "").strip(),
+                        state,  # dataset has no district column
+                        state,
+                        float(lat),
+                        float(lon),
+                    ))
+            # INSERT OR IGNORE: hand-seeded entries keep precedence
+            cursor.executemany("""
+                INSERT OR IGNORE INTO pincodes (pincode, place_name, district, state, latitude, longitude)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, rows)
 
     conn.commit()
     count = cursor.execute("SELECT COUNT(*) FROM pincodes").fetchone()[0]
